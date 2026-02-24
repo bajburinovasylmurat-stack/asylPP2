@@ -32,3 +32,13 @@ print(res)
 sq = (x*x for x in range(1, 6))
 for i in sq:
     print(i)
+
+
+
+#ex 1
+def squares(n):
+    for i in range(n + 1):
+        yield i * i
+
+for num in squares(5):
+    print(num)
