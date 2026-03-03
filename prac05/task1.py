@@ -5,6 +5,6 @@ with open("/Users/asylmuratbaiburinov/Desktop/pp2_asyl/prac05/raw.txt", "r", enc
 
 m = re.findall("ab*", text)
 
-print("Matches found:")
+
 for i in m:
     print(i)
