@@ -1,0 +1,5 @@
+f = open("asik.txt", "w")
+f.write("Asylmurat\n")
+f.write("Mne 18 let\n")
+f.write("KBTU one love\n")
+f.close()
