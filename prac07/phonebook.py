@@ -58,13 +58,10 @@ def insert_vendor(vendor_name):
     try:
         with  psycopg2.connect(**config) as conn:
             with  conn.cursor() as cur:
-                # execute the INSERT statement
                 cur.execute(sql, (vendor_name,))
-                # get the generated id back
                 rows = cur.fetchone()
                 if rows:
                     vendor_id = rows[0]
-                # commit the changes to the database
                 conn.commit()
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
@@ -81,9 +78,7 @@ def insert_many_vendors(vendor_list):
     try:
         with  psycopg2.connect(**config) as conn:
             with  conn.cursor() as cur:
-                # execute the INSERT statement
                 cur.executemany(sql, vendor_list)
-            # commit the changes to the database
             conn.commit()
     except (Exception, psycopg2.DatabaseError) as error:
         print(error)
@@ -118,7 +113,6 @@ def insert_user(name, phone):
         print("Ошибка:", e)
 
 
-# -------- ввод с консоли --------
 if __name__ == "__main__":
     name = input("Введите имя: ")
     phone = input("Введите телефон: ")
@@ -131,7 +125,6 @@ if __name__ == "__main__":
 from config import load_config
 
 def update_contact(user_id, new_name=None, new_phone=None):
-    """Обновляет имя или телефон по ID"""
 
     config = load_config()
 
@@ -158,7 +151,7 @@ def update_contact(user_id, new_name=None, new_phone=None):
                     cur.execute(sql_phone, (new_phone, user_id))
 
                 conn.commit()
-                print("Контакт обновлён")
+                print("Контаr обновлён")
 
     except Exception as e:
         print("Ошибка:", e)
@@ -167,7 +160,6 @@ def update_contact(user_id, new_name=None, new_phone=None):
 from config import load_config
 
 def find_by_name(name):
-    """Поиск контактов по имени"""
 
     sql = """
     SELECT * FROM users
