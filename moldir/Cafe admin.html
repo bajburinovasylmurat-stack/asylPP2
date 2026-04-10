@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Админ — Мөлдір Байбуринова</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fdf6ee;--hall:#f5c9a0;--bar:#2d8a3e;--stage:#e84040;--free:#2d8a3e;--booked:#cc2222;--gold:#b8892a;--text:#1a1208;--text-muted:#7a6a50;--radius:8px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+header{background:#1a1208;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.logo{font-family:'Playfair Display',serif;font-size:1.1rem;color:#e8c97a;}
+.logo small{display:block;font-size:.7rem;color:#8a7a5a;font-family:'DM Sans';font-weight:300;letter-spacing:.1em;text-transform:uppercase;}
+.back{font-size:11px;color:#8a7a5a;text-decoration:none;border:1px solid rgba(138,122,90,.4);padding:5px 12px;border-radius:99px;}
+.back:hover{color:#e8c97a;border-color:#e8c97a;}
+.stats{display:flex;background:#261c0e;}
+.stat{flex:1;text-align:center;padding:10px 6px;border-right:1px solid rgba(255,255,255,.06);}
+.stat:last-child{border-right:none;}
+.stat-val{font-size:18px;font-weight:500;font-family:'Playfair Display',serif;}
+.stat-label{font-size:10px;color:#8a7a5a;margin-top:1px;text-transform:uppercase;letter-spacing:.06em;}
+.toolbar{padding:.6rem 1rem;display:flex;gap:8px;flex-wrap:wrap;background:#f7efe4;border-bottom:1px solid rgba(0,0,0,.08);}
+.tbtn{background:none;border:1px solid rgba(138,122,90,.3);color:var(--text-muted);padding:5px 12px;border-radius:99px;font-size:11px;cursor:pointer;font-family:'DM Sans';transition:all .2s;}
+.tbtn:hover{border-color:var(--text-muted);color:var(--text);}
+.tbtn.g{border-color:rgba(45,138,62,.4);color:var(--free);}
+.tbtn.g:hover{background:rgba(45,138,62,.1);}
+.tbtn.r{border-color:rgba(204,34,34,.4);color:var(--booked);}
+.tbtn.r:hover{background:rgba(204,34,34,.1);}
+.tip{font-size:11px;color:var(--text-muted);padding:.4rem 1rem;font-style:italic;background:#f7efe4;border-bottom:1px solid rgba(0,0,0,.06);}
+.map-outer{overflow:auto;-webkit-overflow-scrolling:touch;padding:1rem;}
+.map-inner{position:relative;width:700px;min-height:900px;margin:0 auto;}
+.zone-hall{position:absolute;background:var(--hall);border-radius:50% 50% 0 0/40% 40% 0 0;left:0;right:0;bottom:0;top:380px;}
+.zone-stage{position:absolute;bottom:0;right:0;width:260px;height:110px;background:var(--stage);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1.3rem;color:#fff;font-weight:600;border-radius:4px 4px 0 0;}
+.zone-bar{position:absolute;left:0;top:380px;bottom:0;width:52px;background:var(--bar);display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;transform:rotate(180deg);font-size:1rem;color:#fff;font-weight:500;letter-spacing:.1em;border-radius:0 4px 4px 0;}
+.zone-wc{position:absolute;left:0;top:0;width:120px;height:220px;background:var(--bar);display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:700;color:#fff;border-radius:0 0 8px 0;}
+.window-bar{position:absolute;top:0;left:120px;right:0;height:14px;background:var(--stage);display:flex;align-items:center;justify-content:space-around;}
+.window-label{font-size:9px;color:#fff;font-weight:600;letter-spacing:.06em;}
+.artist-name{position:absolute;font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--text);left:200px;bottom:160px;opacity:.5;pointer-events:none;font-style:italic;}
+.pillar{position:absolute;background:#1a1208;border-radius:3px;}
+.tbl{position:absolute;background:#fff;border:2px solid rgba(45,138,62,.5);border-radius:var(--radius);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:var(--text);font-family:'DM Sans';transition:transform .12s,border-color .15s,background .15s;padding:3px;line-height:1.2;user-select:none;}
+.tbl:hover{transform:scale(1.1);border-color:var(--free);}
+.tbl.booked{background:rgba(204,34,34,.1);border-color:rgba(204,34,34,.5);}
+.tbl.booked::after{content:'✕';position:absolute;font-size:16px;font-weight:700;color:var(--booked);opacity:.8;}
+.tbl .n{font-size:9px;font-weight:600;color:var(--text-muted);}
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#1a1208;border:1px solid rgba(184,137,42,.4);color:#e8c97a;padding:9px 18px;border-radius:99px;font-size:12px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Мөлдір Байбуринова <small>Панель управления</small></div>
+  <a href="index.html" class="back">← На сайт</a>
+</header>
+<div class="stats">
+  <div class="stat"><div class="stat-val" id="sv" style="color:#4dab6a">—</div><div class="stat-label">Свободно</div></div>
+  <div class="stat"><div class="stat-val" id="sb" style="color:#e84040">—</div><div class="stat-label">Занято</div></div>
+  <div class="stat"><div class="stat-val" id="sr" style="color:#e8c97a;font-size:14px">—</div><div class="stat-label">Выручка ₸</div></div>
+  <div class="stat"><div class="stat-val">72</div><div class="stat-label">Всего</div></div>
+</div>
+<div class="toolbar">
+  <button class="tbtn g" onclick="setAll(false)">✓ Все свободны</button>
+  <button class="tbtn r" onclick="setAll(true)">✗ Все заняты</button>
+</div>
+<p class="tip">Нажми на столик — переключить занято/свободно</p>
+<div class="map-outer">
+<div class="map-inner" id="mapinner">
+  <div class="zone-hall"></div>
+  <div class="zone-bar">Бар</div>
+  <div class="zone-wc">С\У</div>
+  <div class="zone-stage">Сахна</div>
+  <div class="window-bar"><span class="window-label">Терезе</span><span class="window-label">Терезе</span></div>
+  <div class="artist-name">Мөлдір Байбуринова</div>
+  <div class="pillar" style="left:280px;top:320px;width:44px;height:44px;"></div>
+  <div class="pillar" style="left:280px;top:620px;width:44px;height:44px;"></div>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const TABLES=[
+{id:1,x:150,y:790,w:34,h:24,seats:2,price:3000,b:false},
+{id:2,x:190,y:790,w:34,h:24,seats:2,price:3000,b:false},
+{id:3,x:150,y:760,w:34,h:24,seats:2,price:3000,b:false},
+{id:4,x:190,y:760,w:34,h:24,seats:2,price:3000,b:false},
+{id:7,x:130,y:740,w:34,h:24,seats:2,price:2500,b:false},
+{id:8,x:130,y:770,w:34,h:24,seats:2,price:2500,b:false},
+{id:9,x:170,y:720,w:34,h:24,seats:2,price:2500,b:false},
+{id:10,x:205,y:720,w:34,h:24,seats:2,price:2500,b:false},
+{id:11,x:270,y:700,w:34,h:24,seats:4,price:3500,b:true},
+{id:12,x:270,y:735,w:34,h:24,seats:4,price:3500,b:true},
+{id:13,x:350,y:710,w:34,h:24,seats:4,price:3500,b:true},
+{id:14,x:395,y:710,w:34,h:24,seats:4,price:3500,b:true},
+{id:15,x:440,y:710,w:34,h:24,seats:4,price:3500,b:true},
+{id:16,x:485,y:710,w:34,h:24,seats:4,price:3500,b:true},
+{id:17,x:530,y:710,w:34,h:24,seats:4,price:3500,b:true},
+{id:18,x:575,y:710,w:34,h:24,seats:4,price:3500,b:true},
+{id:19,x:620,y:710,w:34,h:24,seats:4,price:3500,b:true},
+{id:20,x:665,y:710,w:34,h:24,seats:4,price:3500,b:true},
+{id:31,x:350,y:560,w:34,h:24,seats:4,price:3500,b:true},
+{id:32,x:350,y:595,w:34,h:24,seats:4,price:3500,b:true},
+{id:33,x:440,y:560,w:34,h:24,seats:4,price:3500,b:false},
+{id:34,x:485,y:560,w:34,h:24,seats:4,price:3500,b:false},
+{id:35,x:530,y:560,w:34,h:24,seats:4,price:3500,b:false},
+{id:36,x:530,y:595,w:34,h:24,seats:4,price:3500,b:false},
+{id:37,x:575,y:560,w:34,h:24,seats:4,price:3500,b:false},
+{id:38,x:575,y:595,w:34,h:24,seats:4,price:3500,b:false},
+{id:47,x:370,y:430,w:34,h:24,seats:4,price:3500,b:false},
+{id:48,x:370,y:465,w:34,h:24,seats:4,price:3500,b:false},
+{id:49,x:415,y:430,w:34,h:24,seats:4,price:3500,b:false},
+{id:50,x:415,y:465,w:34,h:24,seats:4,price:3500,b:false},
+{id:53,x:505,y:430,w:34,h:24,seats:4,price:3500,b:false},
+{id:54,x:505,y:465,w:34,h:24,seats:4,price:3500,b:false},
+{id:55,x:550,y:430,w:34,h:24,seats:4,price:3500,b:false},
+{id:56,x:550,y:465,w:34,h:24,seats:4,price:3500,b:false},
+{id:61,x:370,y:280,w:34,h:24,seats:4,price:5000,b:false},
+{id:62,x:370,y:315,w:34,h:24,seats:4,price:5000,b:false},
+{id:63,x:415,y:280,w:34,h:24,seats:4,price:5000,b:false},
+{id:64,x:415,y:315,w:34,h:24,seats:4,price:5000,b:false},
+{id:65,x:470,y:280,w:34,h:24,seats:4,price:5000,b:false},
+{id:66,x:470,y:315,w:34,h:24,seats:4,price:5000,b:false},
+{id:67,x:515,y:280,w:34,h:24,seats:4,price:5000,b:false},
+{id:68,x:515,y:315,w:34,h:24,seats:4,price:5000,b:false},
+{id:69,x:575,y:280,w:34,h:24,seats:4,price:5000,b:false},
+{id:70,x:575,y:315,w:34,h:24,seats:4,price:5000,b:false},
+{id:71,x:620,y:280,w:34,h:24,seats:4,price:5000,b:false},
+{id:72,x:620,y:315,w:34,h:24,seats:4,price:5000,b:false},
+
+];
+function getBooked(){try{return JSON.parse(localStorage.getItem('b72')||'{}')}catch{return{}}}
+function saveBooked(b){localStorage.setItem('b72',JSON.stringify(b));}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1600);}
+function toggle(id){
+  const b=getBooked();const t=TABLES.find(x=>x.id===id);
+  const cur=b[id]!==undefined?b[id]:t.b;
+  b[id]=!cur;saveBooked(b);renderMap();
+  toast(b[id]?`№${id} — занято`:`№${id} — свободно`);
+}
+function setAll(state){
+  const b={};TABLES.forEach(t=>{b[t.id]=state;});saveBooked(b);renderMap();
+  toast(state?'Все столики заняты':'Все столики свободны');
+}
+function renderMap(){
+  const map=document.getElementById('mapinner');
+  document.querySelectorAll('.tbl').forEach(e=>e.remove());
+  const stored=getBooked();
+  let free=0,bk=0,rev=0;
+  TABLES.forEach(t=>{
+    const isB=stored[t.id]!==undefined?stored[t.id]:t.b;
+    if(isB){bk++;rev+=t.price;}else free++;
+    const btn=document.createElement('button');
+    btn.className='tbl'+(isB?' booked':'');
+    btn.style.cssText=`left:${t.x}px;top:${t.y}px;width:${t.w}px;height:${t.h}px;`;
+    btn.innerHTML=`<span class="n">${t.id}</span>`;
+    btn.onclick=()=>toggle(t.id);
+    map.appendChild(btn);
+  });
+  document.getElementById('sv').textContent=free;
+  document.getElementById('sb').textContent=bk;
+  document.getElementById('sr').textContent=rev>0?rev.toLocaleString('ru'):'0';
+}
+renderMap();
+</script>
+</body>
+</html>
