@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Кафе — Забронировать столик</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0f0e0d;--surface:#1a1917;--surface2:#242220;
+    --gold:#c9a84c;--gold-light:#e8c97a;--gold-dim:rgba(201,168,76,0.15);
+    --text:#f0ead8;--text-muted:#8a8070;
+    --free:#4a9e6b;--free-bg:rgba(74,158,107,0.12);
+    --booked:#c0392b;--booked-bg:rgba(192,57,43,0.12);
+    --selected:#c9a84c;--selected-bg:rgba(201,168,76,0.18);
+    --radius:10px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+  header{padding:1.5rem 2rem 1rem;border-bottom:1px solid rgba(201,168,76,0.2);display:flex;align-items:center;justify-content:space-between;}
+  .logo{font-family:'Playfair Display',serif;font-size:1.6rem;color:var(--gold);letter-spacing:.04em;}
+  .logo span{font-size:.8rem;display:block;color:var(--text-muted);font-family:'DM Sans',sans-serif;font-weight:300;letter-spacing:.12em;text-transform:uppercase;}
+  .admin-link{font-size:12px;color:var(--text-muted);text-decoration:none;border:1px solid rgba(138,128,112,0.3);padding:6px 14px;border-radius:99px;transition:all .2s;}
+  .admin-link:hover{color:var(--gold);border-color:var(--gold);}
+  .stats{display:flex;gap:0;padding:.75rem 2rem;background:var(--surface);border-top:1px solid rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05);}
+  .stat{flex:1;text-align:center;padding:6px;}
+  .stat-val{font-size:20px;font-weight:500;font-family:'Playfair Display',serif;}
+  .stat-label{font-size:11px;color:var(--text-muted);margin-top:1px;}
+  .stat+.stat{border-left:1px solid rgba(255,255,255,.06);}
+  .legend{display:flex;gap:20px;padding:.75rem 2rem;font-size:12px;color:var(--text-muted);border-bottom:1px solid rgba(255,255,255,.05);}
+  .legend-dot{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:6px;vertical-align:middle;}
+  .filters{padding:.75rem 2rem;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .filter-btn{background:none;border:1px solid rgba(138,128,112,.3);color:var(--text-muted);padding:5px 14px;border-radius:99px;font-size:12px;cursor:pointer;font-family:'DM Sans';transition:all .2s;}
+  .filter-btn.active,.filter-btn:hover{border-color:var(--gold);color:var(--gold);}
+  .filter-label{font-size:12px;color:var(--text-muted);}
+  .floor-wrap{padding:1rem 2rem 3rem;}
+  .zone-label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--text-muted);margin:1.2rem 0 .6rem;}
+  .floor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:8px;}
+  .table-btn{background:var(--surface);border:1.5px solid rgba(138,128,112,.2);border-radius:var(--radius);padding:10px 6px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:transform .15s,border-color .15s,background .15s;font-family:'DM Sans',sans-serif;position:relative;}
+  .table-btn:hover{transform:translateY(-2px);}
+  .table-btn .t-icon{font-size:20px;line-height:1;}
+  .table-btn .t-num{font-size:11px;font-weight:500;color:var(--text);}
+  .table-btn .t-seats{font-size:10px;color:var(--text-muted);}
+  .table-btn.free{border-color:rgba(74,158,107,.4);}
+  .table-btn.free:hover{border-color:var(--free);background:var(--free-bg);}
+  .table-btn.booked{border-color:rgba(192,57,43,.3);background:rgba(192,57,43,.05);cursor:not-allowed;opacity:.65;}
+  .table-btn.selected{border-color:var(--gold);background:var(--selected-bg);}
+  .table-btn.selected .t-num{color:var(--gold);}
+  .vip-badge{position:absolute;top:4px;right:4px;font-size:8px;background:var(--gold);color:#000;padding:1px 4px;border-radius:4px;font-weight:500;}
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;display:none;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px);}
+  .overlay.active{display:flex;}
+  .modal{background:var(--surface);border:1px solid rgba(201,168,76,.25);border-radius:16px;padding:1.75rem;width:100%;max-width:380px;animation:slideUp .25s ease;}
+  @keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+  .modal h2{font-family:'Playfair Display',serif;font-size:1.35rem;color:var(--gold);}
+  .modal-sub{font-size:13px;color:var(--text-muted);margin-top:3px;margin-bottom:1.1rem;}
+  .modal-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:13px;}
+  .modal-row:last-of-type{border-bottom:none;}
+  .modal-row span:first-child{color:var(--text-muted);}
+  .modal-row span:last-child{font-weight:500;}
+  .price-big{font-family:'Playfair Display',serif;font-size:2rem;color:var(--gold);text-align:center;margin:.9rem 0;}
+  .kaspi-btn{width:100%;padding:14px;background:#ef4123;color:#fff;border:none;border-radius:var(--radius);font-size:15px;font-weight:500;cursor:pointer;font-family:'DM Sans';display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s,transform .1s;margin-top:1rem;}
+  .kaspi-btn:hover{background:#d03419;}
+  .kaspi-btn:active{transform:scale(.98);}
+  .notice{background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);border-radius:var(--radius);padding:10px 12px;font-size:12px;color:var(--text-muted);margin-top:10px;line-height:1.6;}
+  .notice strong{color:var(--gold);}
+  .cancel-btn{width:100%;background:none;border:1px solid rgba(138,128,112,.3);color:var(--text-muted);padding:10px;border-radius:var(--radius);font-size:13px;cursor:pointer;margin-top:8px;font-family:'DM Sans';transition:all .2s;}
+  .cancel-btn:hover{border-color:var(--text-muted);color:var(--text);}
+  .step2{display:none;}
+  .step2.active{display:block;}
+  .step1.hidden{display:none;}
+  .phone-display{background:var(--surface2);border:1px solid rgba(201,168,76,.25);border-radius:var(--radius);padding:12px 16px;font-size:1.2rem;font-weight:500;color:var(--gold);text-align:center;margin:.75rem 0;letter-spacing:.06em;}
+  .whatsapp-btn{width:100%;padding:14px;background:#25d366;color:#fff;border:none;border-radius:var(--radius);font-size:15px;font-weight:500;cursor:pointer;font-family:'DM Sans';display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s;margin-top:1rem;}
+  .whatsapp-btn:hover{background:#1ebe5c;}
+  .step-bar{display:flex;gap:6px;margin-bottom:1.25rem;}
+  .step-dot{height:3px;border-radius:99px;flex:1;background:rgba(255,255,255,.1);transition:background .3s;}
+  .step-dot.on{background:var(--gold);}
+  @media(max-width:600px){header{padding:1rem;}
+  .floor-wrap,.legend,.filters,.stats{padding-left:1rem;padding-right:1rem;}
+  .floor-grid{grid-template-columns:repeat(auto-fill,minmax(66px,1fr));gap:6px;}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Café Noor<span>Алматы · Бронирование столиков</span></div>
+  <a href="admin.html" class="admin-link">⚙ Админ</a>
+</header>
+<div class="stats">
+  <div class="stat"><div class="stat-val" id="stat-free" style="color:var(--free)">—</div><div class="stat-label">свободно</div></div>
+  <div class="stat"><div class="stat-val" id="stat-booked" style="color:var(--booked)">—</div><div class="stat-label">занято</div></div>
+  <div class="stat"><div class="stat-val">100</div><div class="stat-label">всего столиков</div></div>
+</div>
+<div class="legend">
+  <span><span class="legend-dot" style="background:var(--free)"></span>Свободно</span>
+  <span><span class="legend-dot" style="background:var(--booked)"></span>Занято</span>
+  <span><span class="legend-dot" style="background:var(--gold)"></span>Выбрано</span>
+</div>
+<div class="filters">
+  <span class="filter-label">Зона:</span>
+  <button class="filter-btn active" onclick="filterZone('all',this)">Все</button>
+  <button class="filter-btn" onclick="filterZone('hall',this)">Зал</button>
+  <button class="filter-btn" onclick="filterZone('terrace',this)">Терраса</button>
+  <button class="filter-btn" onclick="filterZone('vip',this)">VIP</button>
+  <button class="filter-btn" onclick="filterZone('bar',this)">Барная зона</button>
+</div>
+<div class="floor-wrap" id="floor-wrap"></div>
+<div class="overlay" id="overlay" onclick="handleOverlayClick(event)">
+  <div class="modal" id="modal">
+    <div class="step-bar"><div class="step-dot on" id="dot1"></div><div class="step-dot" id="dot2"></div></div>
+    <div class="step1" id="step1">
+      <h2 id="m-title">Столик</h2>
+      <p class="modal-sub" id="m-sub"></p>
+      <div class="modal-row"><span>Зона</span><span id="m-zone">—</span></div>
+      <div class="modal-row"><span>Мест</span><span id="m-seats">—</span></div>
+      <div class="modal-row"><span>Тип</span><span id="m-type">—</span></div>
+      <div class="price-big" id="m-price">—</div>
+      <button class="kaspi-btn" onclick="goStep2()">💳 Перевести через Kaspi</button>
+      <div class="notice">После оплаты отправьте скриншот чека в WhatsApp — мы подтвердим бронь и пришлём билет.</div>
+      <button class="cancel-btn" onclick="closeModal()">Отмена</button>
+    </div>
+    <div class="step2" id="step2">
+      <h2 style="font-size:1.1rem;color:var(--text);font-family:'DM Sans'">Отправьте чек в WhatsApp</h2>
+      <p class="modal-sub">Переведите точную сумму на номер:</p>
+      <div class="phone-display" id="m-phone">+7 777 000 00 00</div>
+      <div class="modal-row"><span>Сумма</span><span id="m-price2" style="color:var(--gold)">—</span></div>
+      <div class="modal-row"><span>Комментарий</span><span id="m-comment" style="font-size:12px">—</span></div>
+      <div class="notice" style="margin-top:.75rem">
+        1. Переведите деньги через <strong>Kaspi</strong><br>
+        2. Сделайте скриншот чека<br>
+        3. Нажмите кнопку ниже — откроется WhatsApp<br>
+        4. Прикрепите скриншот и отправьте
+      </div>
+      <button class="whatsapp-btn" onclick="sendWhatsApp()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Отправить чек в WhatsApp
+      </button>
+      <button class="cancel-btn" onclick="closeModal()">Закрыть</button>
+    </div>
+  </div>
+</div>
+<script>
+const OWNER_PHONE='77770000000';
+const WHATSAPP_PHONE='77770000000';
+const CAFE_NAME='Café Noor';
+const ZONES={hall:{label:'Зал',range:[1,50]},terrace:{label:'Терраса',range:[51,70]},vip:{label:'VIP',range:[71,85]},bar:{label:'Барная зона',range:[86,100]}};
+function getZone(id){for(const[k,z]of Object.entries(ZONES)){if(id>=z.range[0]&&id<=z.range[1])return{key:k,...z};}return null;}
+function getSeats(id){if(id>=71&&id<=85)return 6;if(id%3===0)return 4;return 2;}
+function getPrice(id){const z=getZone(id);if(z.key==='vip')return 5000;if(z.key==='terrace')return 2500;if(z.key==='bar')return 1500;return getSeats(id)===4?2000:1200;}
+function getBooked(){try{return JSON.parse(localStorage.getItem('booked')||'{}')}catch{return{}}}
+let activeFilter='all',selectedId=null;
+function filterZone(z,btn){activeFilter=z;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderFloor();}
+function renderFloor(){
+  const wrap=document.getElementById('floor-wrap');
+  const booked=getBooked();wrap.innerHTML='';
+  let free=0,bk=0;
+  for(const[k,z]of Object.entries(ZONES)){for(let i=z.range[0];i<=z.range[1];i++){booked[i]?bk++:free++;}}
+  document.getElementById('stat-free').textContent=free;
+  document.getElementById('stat-booked').textContent=bk;
+  const entries=activeFilter==='all'?Object.entries(ZONES):Object.entries(ZONES).filter(([k])=>k===activeFilter);
+  for(const[key,zone]of entries){
+    const lbl=document.createElement('div');lbl.className='zone-label';lbl.textContent=zone.label;wrap.appendChild(lbl);
+    const grid=document.createElement('div');grid.className='floor-grid';
+    for(let id=zone.range[0];id<=zone.range[1];id++){
+      const isB=!!booked[id],isSel=selectedId===id,seats=getSeats(id),isVip=key==='vip';
+      const btn=document.createElement('button');
+      btn.className='table-btn '+(isB?'booked':isSel?'selected':'free');
+      btn.innerHTML=`${isVip?'<span class="vip-badge">VIP</span>':''}<span class="t-icon">${seats<=2?'🪑':seats<=4?'🍽️':'🛋️'}</span><span class="t-num">№${id}</span><span class="t-seats">${seats} мест</span>`;
+      if(!isB)btn.onclick=()=>openModal(id);
+      grid.appendChild(btn);
+    }
+    wrap.appendChild(grid);
+  }
+}
+function openModal(id){
+  selectedId=id;renderFloor();
+  const z=getZone(id),seats=getSeats(id),price=getPrice(id);
+  document.getElementById('m-title').textContent=`Столик №${id}`;
+  document.getElementById('m-sub').textContent=`${seats} места · ${z.label}`;
+  document.getElementById('m-zone').textContent=z.label;
+  document.getElementById('m-seats').textContent=seats+' человека';
+  document.getElementById('m-type').textContent=z.key==='vip'?'VIP — приватная зона':'Стандарт';
+  document.getElementById('m-price').textContent=price.toLocaleString('ru')+' ₸';
+  document.getElementById('m-price2').textContent=price.toLocaleString('ru')+' ₸';
+  document.getElementById('m-phone').textContent='+'+OWNER_PHONE.replace(/(\d)(\d{3})(\d{3})(\d{2})(\d{2})/,'$1 $2 $3 $4 $5');
+  document.getElementById('m-comment').textContent=`Столик №${id} ${CAFE_NAME}`;
+  document.getElementById('step1').classList.remove('hidden');
+  document.getElementById('step2').classList.remove('active');
+  document.getElementById('dot1').classList.add('on');document.getElementById('dot2').classList.remove('on');
+  document.getElementById('overlay').classList.add('active');
+}
+function goStep2(){
+  const id=selectedId,price=getPrice(id);
+  window.open(`https://pay.kaspi.kz/pay/zp?id=${OWNER_PHONE}&amount=${price}&comment=${encodeURIComponent('Столик №'+id+' '+CAFE_NAME)}`,'_blank');
+  document.getElementById('step1').classList.add('hidden');
+  document.getElementById('step2').classList.add('active');
+  document.getElementById('dot1').classList.remove('on');document.getElementById('dot2').classList.add('on');
+}
+function sendWhatsApp(){
+  const id=selectedId,price=getPrice(id);
+  const msg=encodeURIComponent(`Здравствуйте! Оплатил бронь столика №${id} в ${CAFE_NAME} на сумму ${price.toLocaleString('ru')} ₸.\nПрикрепляю скриншот чека Kaspi.`);
+  window.open(`https://wa.me/${WHATSAPP_PHONE}?text=${msg}`,'_blank');
+}
+function handleOverlayClick(e){if(e.target===document.getElementById('overlay'))closeModal();}
+function closeModal(){selectedId=null;document.getElementById('overlay').classList.remove('active');renderFloor();}
+renderFloor();
+</script>
+</body>
+</html>
