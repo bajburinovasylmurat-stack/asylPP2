@@ -37,10 +37,33 @@ header{background:#1a1208;padding:1rem 1.5rem;display:flex;align-items:center;ju
 .window-label{font-size:9px;color:#fff;font-weight:600;letter-spacing:.06em;}
 .artist-name{position:absolute;font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--text);left:200px;bottom:160px;opacity:.5;pointer-events:none;font-style:italic;}
 .pillar{position:absolute;background:#1a1208;border-radius:3px;}
-.tbl{position:absolute;background:#fff;border:2px solid rgba(45,138,62,.5);border-radius:var(--radius);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:var(--text);font-family:'DM Sans';transition:transform .12s,border-color .15s,background .15s;padding:3px;line-height:1.2;user-select:none;}
+.tbl {
+  background: #fff; /* белый фон */
+  border: 2px solid rgba(45,138,62,.5); /* зеленая рамка */
+  border-radius: 8px; /* скругление углов */
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.2); /* тень */
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text);
+  padding: 4px;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
 .tbl:hover{transform:scale(1.1);border-color:var(--free);}
-.tbl.booked{background:rgba(204,34,34,.1);border-color:rgba(204,34,34,.5);}
-.tbl.booked::after{content:'✕';position:absolute;font-size:16px;font-weight:700;color:var(--booked);opacity:.8;}
+.tbl.booked {
+  background: #f8d7da; /* светло-красный */
+  border-color: #dc3545;
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.2);
+  position: relative;
+}
+.tbl.booked::after {
+  content: '✕';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #dc3545;
+}
 .tbl .n{font-size:9px;font-weight:600;color:var(--text-muted);}
 .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#1a1208;border:1px solid rgba(184,137,42,.4);color:#e8c97a;padding:9px 18px;border-radius:99px;font-size:12px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;}
 .toast.show{opacity:1;}
