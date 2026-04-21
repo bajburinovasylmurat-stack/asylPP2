@@ -74,7 +74,7 @@ while running:
         score += 1
         food = new_food()
 
-        if score % 3 == 0:
+        if score % 5 == 0:
             level += 1
             speed += 2
     else:
