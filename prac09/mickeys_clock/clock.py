@@ -17,11 +17,10 @@ class MickeyClock:
         self.font = pygame.font.SysFont("Arial", 60, bold=True)
 
     def draw_face(self):
-        # Циферблат
+    
         pygame.draw.circle(self.screen, (220, 220, 220), self.center, self.radius)
         pygame.draw.circle(self.screen, (0, 0, 0), self.center, self.radius, 6)
 
-        # Цифры 1–12 (неподвижные)
         for i in range(1, 13):
             angle = math.radians(i * 30 - 90)
             x = self.center[0] + int((self.radius - 60) * math.cos(angle))
@@ -30,7 +29,6 @@ class MickeyClock:
             rect = text.get_rect(center=(x, y))
             self.screen.blit(text, rect)
 
-        # Центральная точка
         pygame.draw.circle(self.screen, (0, 0, 0), self.center, 12)
 
     def draw_hand(self, angle_deg):
@@ -45,11 +43,11 @@ class MickeyClock:
         minute = now.minute
         second = now.second
 
-        hour_angle   = hour * 30 + minute * 0.5   # плавное движение
+        hour_angle   = hour * 30 + minute * 0.5   
         minute_angle = minute * 6
         second_angle = second * 6
 
-        self.draw_face()                    # сначала циферблат
-        self.draw_hand(hour_angle)          # часовая стрелка
-        self.draw_hand(minute_angle)        # минутная
-        self.draw_hand(second_angle)        # секундная
+        self.draw_face()                  
+        self.draw_hand(hour_angle)          
+        self.draw_hand(minute_angle)        
+        self.draw_hand(second_angle)        

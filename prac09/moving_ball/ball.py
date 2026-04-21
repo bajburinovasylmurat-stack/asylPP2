@@ -17,7 +17,7 @@ class Ball:
         n_x = self.x + dx
         n_y = self.y + dy
 
-        # Шекара тексеру
+        
         if n_x - self.radius >= 0 and n_x + self.radius <= self.width:
             self.x = n_x
 

@@ -3,7 +3,7 @@ from clock import MickeyClock
 
 pygame.init()
 
-# Терезе өлшемі
+
 W = 1600
 H = 1600
 
@@ -26,6 +26,6 @@ while running:
     mickey_clock.draw()
 
     pygame.display.update()
-    clock.tick(1)  # әр секунд сайын жаңарады
+    clock.tick(1)
 
 pygame.quit()
