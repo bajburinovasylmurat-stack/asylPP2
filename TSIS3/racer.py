@@ -456,9 +456,8 @@ class GameSession:
             return
 
         self.frame    += 1
-        self.distance  = self.frame * self.road_speed // 60   # approx metres
+        self.distance  = self.frame * self.road_speed // 60   
 
-        # Speed scale
         target_speed = min(
             self.ROAD_SPEED_MAX,
             self.ROAD_SPEED_BASE + self.coin_count * self.SPEED_SCALE
@@ -466,26 +465,21 @@ class GameSession:
         if self.road_speed < target_speed:
             self.road_speed += 0.005
 
-        # Nitro boost
         nitro_active = (self.active_pu == "nitro")
         eff_speed    = self.road_speed * (1.6 if nitro_active else 1.0)
         self.player.nitro_on = nitro_active
 
-        # Power-up timer
         if self.active_pu == "nitro" and self.pu_timer > 0:
             self.pu_timer -= 1
             if self.pu_timer <= 0:
                 self.active_pu = None
                 self.player.nitro_on = False
 
-        # Player
         self.player.update(keys, nitro_active)
 
-        # Road
         self.road.update(eff_speed)
         self.score += int(eff_speed * 0.1)
 
-        # Spawn timers
         self.traf_timer -= 1
         if self.traf_timer <= 0:
             self._spawn_traffic()
