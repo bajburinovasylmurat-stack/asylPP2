@@ -303,19 +303,16 @@ class SnakeGame:
     def draw(self, surface, grid_overlay=False):
         surface.fill(DARK_GRAY)
 
-        # Grid
         if grid_overlay:
             for x in range(0, SCREEN_WIDTH, CELL_SIZE):
                 pygame.draw.line(surface, (40, 40, 40), (x, 0), (x, SCREEN_HEIGHT))
             for y in range(0, SCREEN_HEIGHT, CELL_SIZE):
                 pygame.draw.line(surface, (40, 40, 40), (0, y), (SCREEN_WIDTH, y))
 
-        # Obstacles
         for obs in self.obstacles:
             pygame.draw.rect(surface, OBSTACLE_COLOR, (*obs, CELL_SIZE, CELL_SIZE))
             pygame.draw.rect(surface, (80, 80, 80), (*obs, CELL_SIZE, CELL_SIZE), 1)
 
-        # Foods
         for food in self.foods:
             pygame.draw.rect(surface, food.color, (*food.pos, CELL_SIZE, CELL_SIZE))
             if food.food_type == "bonus":
@@ -329,7 +326,6 @@ class SnakeGame:
                 pygame.draw.line(surface, (255, 255, 255), (cx - 4, cy - 4), (cx + 4, cy + 4), 2)
                 pygame.draw.line(surface, (255, 255, 255), (cx + 4, cy - 4), (cx - 4, cy + 4), 2)
 
-        # Power-up
         if self.powerup:
             pu = self.powerup
             pygame.draw.rect(surface, pu.color, (*pu.pos, CELL_SIZE, CELL_SIZE))
@@ -341,18 +337,15 @@ class SnakeGame:
             bar_w = int(CELL_SIZE * ratio)
             pygame.draw.rect(surface, (255, 255, 255), (pu.pos[0], pu.pos[1] - 4, bar_w, 3))
 
-        # Snake
         for i, seg in enumerate(self.snake):
             color = SNAKE_HEAD_COLOR if i == 0 else self.snake_color
             pygame.draw.rect(surface, color, (*seg, CELL_SIZE, CELL_SIZE))
             pygame.draw.rect(surface, (0, 0, 0), (*seg, CELL_SIZE, CELL_SIZE), 1)
 
-        # Shield glow
         if self.shield_active:
             head = self.snake[0]
             pygame.draw.rect(surface, (100, 180, 255), (*head, CELL_SIZE, CELL_SIZE), 2)
 
-        # Active effects indicator
         y_offset = 40
         for effect, end_time in self.active_effects.items():
             remaining = max(0, end_time - pygame.time.get_ticks())

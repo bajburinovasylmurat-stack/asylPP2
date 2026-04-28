@@ -1,15 +1,3 @@
-"""
-TSIS 2 — Paint Application  (paint.py)
-Extends Practice 10 & 11 with:
-  • Pencil (freehand) & straight-line tool with live preview
-  • Three brush sizes  (keys 1 / 2 / 3)
-  • Flood-fill tool
-  • Text tool  (click → type → Enter to confirm, Esc to cancel)
-  • Ctrl+S  → timestamped .png save
-  • All shapes from P10/P11 (rectangle, square, circle,
-    right triangle, equilateral triangle, rhombus)
-"""
-
 import pygame
 import datetime
 from tools import (
@@ -17,9 +5,6 @@ from tools import (
     flood_fill, SHAPE_TOOLS,
 )
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Constants
-# ──────────────────────────────────────────────────────────────────────────────
 
 CANVAS_W, CANVAS_H = 900, 620
 TOOLBAR_H = 56
@@ -43,7 +28,7 @@ PALETTE = [
     (120, 60,  30),   (40,  120, 100), (20,  60,  120), (200, 150, 100),
 ]
 
-# Tool list:  (id, label, shortcut hint)
+
 TOOLS = [
     ('pencil',         'Pencil',   'P'),
     ('line',           'Line',     'L'),
@@ -73,9 +58,7 @@ KEY_SHORTCUTS = {
 }
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Toolbar layout helpers
-# ──────────────────────────────────────────────────────────────────────────────
+
 
 class Toolbar:
     """Renders the top toolbar: tools | sizes | palette"""
@@ -141,7 +124,7 @@ class Toolbar:
                                       (255, 255, 255) if is_active else TEXT_COLOR)
             screen.blit(txt, txt.get_rect(center=rect.center))
 
-        # Size buttons
+        #
         for k, r in self.size_rects.items():
             is_active = (k == brush_key)
             bg = ACTIVE_COLOR if is_active else TOOLBAR_BG
@@ -150,12 +133,12 @@ class Toolbar:
             lbl = self.font_sm.render(str(k), True,
                                       (255, 255, 255) if is_active else TEXT_COLOR)
             screen.blit(lbl, lbl.get_rect(center=r.center))
-            # show dot size
+            
             dot_r = BRUSH_SIZES[k]
             pygame.draw.circle(screen, draw_color,
                                 (r.right + 6, r.centery), min(dot_r, 7))
 
-        # Palette swatches
+       
         for rect, color in self.swatch_rects:
             pygame.draw.rect(screen, color, rect)
             if color == draw_color:
@@ -182,9 +165,7 @@ class Toolbar:
         return None
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Text tool state
-# ──────────────────────────────────────────────────────────────────────────────
+
 
 class TextEntry:
     def __init__(self, pos, font, color):
@@ -222,9 +203,7 @@ class TextEntry:
             surface.blit(surf, self.pos)
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Main application
-# ──────────────────────────────────────────────────────────────────────────────
+
 
 def main():
     pygame.init()
@@ -239,7 +218,7 @@ def main():
 
     toolbar = Toolbar(font_sm, font_xs)
 
-    # Canvas (separate surface so toolbar never gets painted on)
+   
     canvas  = pygame.Surface((CANVAS_W, CANVAS_H))
     canvas.fill(BG_COLOR)
 
@@ -408,10 +387,10 @@ def main():
                              (mouse_scr[0] - half, mouse_scr[1] - half,
                               half * 2, half * 2), 1)
 
-        # 5. Toolbar (drawn last — always on top)
+      
         toolbar.draw(screen, active_tool, brush_key, draw_color)
 
-        # 6. Status bar hint
+       
         hint = (f"Tool: {active_tool}  |  Size: {BRUSH_SIZES[brush_key]}px  |  "
                 f"Ctrl+S=Save  Del=Clear  1/2/3=Size")
         hint_surf = font_xs.render(hint, True, (140, 140, 160))

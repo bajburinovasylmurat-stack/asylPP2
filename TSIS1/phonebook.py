@@ -8,9 +8,7 @@ import json
 import psycopg2
 from config import load_config
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Helpers
-# ──────────────────────────────────────────────────────────────────────────────
+
 
 def _conn():
     """Return a live psycopg2 connection."""
@@ -36,9 +34,6 @@ def _resolve_contact(cur, name: str):
     return cur.fetchone()
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 3.2  Advanced Console Search & Filter
-# ──────────────────────────────────────────────────────────────────────────────
 
 def filter_by_group(group_name: str) -> None:
     """Show all contacts in a given group."""
@@ -138,15 +133,13 @@ def _print_contacts(cur, rows) -> None:
     print()
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Paginated console navigation  (uses the DB function from Practice 8)
-# ──────────────────────────────────────────────────────────────────────────────
+
 
 def paginated_browse(page_size: int = 5) -> None:
     """Interactive page navigator — next / prev / quit."""
     offset = 0
 
-    # Count total rows once
+   
     try:
         with _conn() as conn:
             with conn.cursor() as cur:
@@ -164,7 +157,7 @@ def paginated_browse(page_size: int = 5) -> None:
         try:
             with _conn() as conn:
                 with conn.cursor() as cur:
-                    # Call the DB function from Practice 8
+                    
                     cur.execute(
                         "SELECT * FROM get_users_page(%s, %s);",
                         (page_size, offset)
@@ -203,9 +196,6 @@ def paginated_browse(page_size: int = 5) -> None:
             break
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 3.3  Export to JSON
-# ──────────────────────────────────────────────────────────────────────────────
 
 def export_to_json(filepath: str = 'contacts_export.json') -> None:
     """Write all contacts (with phones and group) to a JSON file."""
@@ -250,9 +240,6 @@ def export_to_json(filepath: str = 'contacts_export.json') -> None:
         print("Error:", e)
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 3.3  Import from JSON  (with duplicate handling)
-# ──────────────────────────────────────────────────────────────────────────────
 
 def import_from_json(filepath: str = 'contacts_export.json') -> None:
     """
@@ -306,7 +293,7 @@ def import_from_json(filepath: str = 'contacts_export.json') -> None:
                             (email, birthday or None, group_id, name)
                         )
                         contact_id = cur.fetchone()[0]
-                        # Replace phones
+                        
                         cur.execute("DELETE FROM phones WHERE contact_id = %s;", (contact_id,))
                         for ph in phones:
                             cur.execute(
@@ -339,9 +326,7 @@ def import_from_json(filepath: str = 'contacts_export.json') -> None:
     print(f"\nDone — inserted: {inserted}, updated: {updated}, skipped: {skipped}")
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# 3.3  Extended CSV Import  (handles email, birthday, group, phone type)
-# ──────────────────────────────────────────────────────────────────────────────
+
 
 def import_from_csv(filepath: str = 'contacts.csv') -> None:
     """
@@ -382,7 +367,7 @@ def import_from_csv(filepath: str = 'contacts.csv') -> None:
 
                         existing = _resolve_contact(cur, name)
                         if existing:
-                            # Add phone to existing contact (don't duplicate contact row)
+                           
                             contact_id = existing[0]
                         else:
                             cur.execute(
@@ -412,23 +397,17 @@ def import_from_csv(filepath: str = 'contacts.csv') -> None:
         print("Error:", e)
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Console menu  (entry point)
-# ──────────────────────────────────────────────────────────────────────────────
 
 MENU = """
-╔══════════════════════════════════╗
-║   PhoneBook — TSIS 1 Extended   ║
-╠══════════════════════════════════╣
-║  1. Filter by group              ║
-║  2. Search by e-mail             ║
-║  3. List contacts (sorted)       ║
-║  4. Browse pages                 ║
-║  5. Export to JSON               ║
-║  6. Import from JSON             ║
-║  7. Import from CSV              ║
-║  0. Exit                         ║
-╚══════════════════════════════════╝
+ 1. Filter by group              
+ 2. Search by e-mail             
+ 3. List contacts (sorted)       
+ 4. Browse pages                 
+ 5. Export to JSON               
+ 6. Import from JSON             
+ 7. Import from CSV              
+ 0. Exit                         
+
 """
 
 

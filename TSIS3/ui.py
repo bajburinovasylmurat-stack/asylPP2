@@ -1,12 +1,9 @@
-"""ui.py — All non-gameplay screens for TSIS 3 Racer"""
-
 import pygame
 from persistence import (
     load_settings, save_settings, load_leaderboard,
     DIFFICULTY_PARAMS,
 )
 
-# ─── Palette ─────────────────────────────────────────────────────────────────
 BG       = (12,  12,  20)
 PANEL    = (22,  22,  36)
 ACCENT   = (0,  200, 255)
@@ -27,7 +24,6 @@ CAR_COLORS = [
 ]
 
 
-# ─── Reusable button ─────────────────────────────────────────────────────────
 class Button:
     def __init__(self, rect, label, color=ACCENT, text_color=DARK, font=None):
         self.rect       = pygame.Rect(rect)
@@ -52,9 +48,6 @@ class Button:
         return (event.type == pygame.MOUSEBUTTONDOWN
                 and event.button == 1
                 and self.rect.collidepoint(event.pos))
-
-
-# ─── Helper: draw starfield background ───────────────────────────────────────
 def draw_bg(screen, stars):
     screen.fill(BG)
     for sx, sy, br in stars:
@@ -66,8 +59,6 @@ def make_stars(w, h, n=120):
     return [(random.randint(0, w), random.randint(0, h),
              random.randint(60, 180)) for _ in range(n)]
 
-
-# ─── Title ───────────────────────────────────────────────────────────────────
 def draw_title(screen, font_title, font_sub, text, sub, W):
     t = font_title.render(text, True, ACCENT)
     screen.blit(t, t.get_rect(centerx=W // 2, y=36))
@@ -76,9 +67,6 @@ def draw_title(screen, font_title, font_sub, text, sub, W):
         screen.blit(s, s.get_rect(centerx=W // 2, y=100))
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# Username Entry Screen
-# ═══════════════════════════════════════════════════════════════════════════════
 class UsernameScreen:
     def __init__(self, W, H, settings):
         self.W, self.H = W, H
@@ -130,10 +118,6 @@ class UsernameScreen:
     def username(self):
         return self.text.strip() or "Player"
 
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Main Menu
-# ═══════════════════════════════════════════════════════════════════════════════
 class MainMenu:
     def __init__(self, W, H, settings):
         self.W, self.H = W, H
@@ -170,13 +154,10 @@ class MainMenu:
             btn.draw(screen, self.font_btn)
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# Settings Screen
-# ═══════════════════════════════════════════════════════════════════════════════
 class SettingsScreen:
     def __init__(self, W, H, settings):
         self.W, self.H = W, H
-        self.settings  = dict(settings)   # work on a copy
+        self.settings  = dict(settings)   
         self.stars     = make_stars(W, H)
         self._car_idx  = self._find_car_idx()
         self._diff_idx = ["easy", "normal", "hard"].index(
@@ -236,7 +217,6 @@ class SettingsScreen:
                     self.btn_dif_l, self.btn_dif_r):
             btn.update(mouse)
 
-        # Sound toggle
         sound_on = self.settings.get("sound", False)
         self.btn_sound.label = "ON ♪" if sound_on else "OFF ✕"
         self.btn_sound.color = GREEN if sound_on else RED
@@ -244,11 +224,9 @@ class SettingsScreen:
         screen.blit(lbl, (cx - 180, 218))
         self.btn_sound.draw(screen, self.font_btn)
 
-        # Car color
         name, color = CAR_COLORS[self._car_idx]
         lbl2 = self.font_lbl.render("Car Color:", True, WHITE)
         screen.blit(lbl2, (cx - 180, 298))
-        # Swatch
         swatch = pygame.Rect(cx - 60, 295, 120, 36)
         pygame.draw.rect(screen, color, swatch, border_radius=6)
         pygame.draw.rect(screen, WHITE, swatch, 1, border_radius=6)
@@ -257,7 +235,6 @@ class SettingsScreen:
         self.btn_car_l.draw(screen, self.font_btn)
         self.btn_car_r.draw(screen, self.font_btn)
 
-        # Difficulty
         diff_name = ["easy", "normal", "hard"][self._diff_idx].upper()
         diff_col  = [GREEN, ACCENT2, RED][self._diff_idx]
         lbl3 = self.font_lbl.render("Difficulty:", True, WHITE)
@@ -278,9 +255,6 @@ class SettingsScreen:
         return self.settings
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# Leaderboard Screen
-# ═══════════════════════════════════════════════════════════════════════════════
 class LeaderboardScreen:
     def __init__(self, W, H):
         self.W, self.H = W, H
@@ -338,9 +312,6 @@ class LeaderboardScreen:
         self.btn_back.draw(screen, self.font_btn)
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# Game Over Screen
-# ═══════════════════════════════════════════════════════════════════════════════
 class GameOverScreen:
     def __init__(self, W, H, score, distance, coins, username):
         self.W, self.H   = W, H

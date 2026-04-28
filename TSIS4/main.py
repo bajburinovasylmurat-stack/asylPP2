@@ -17,7 +17,6 @@ from db import save_score, get_leaderboard, get_personal_best
 from settings_manager import load_settings, save_settings
 
 
-# ── UI Helpers ──────────────────────────────────────────────────────────
 
 class Button:
     def __init__(self, x, y, w, h, text, color=BUTTON_COLOR, hover_color=BUTTON_HOVER):
@@ -57,7 +56,6 @@ def draw_text(surface, text, x, y, size=FONT_SMALL, color=WHITE):
     surface.blit(txt, (x, y))
 
 
-# ── Screens ─────────────────────────────────────────────────────────────
 
 class MainMenu:
     def __init__(self):
@@ -108,14 +106,14 @@ class MainMenu:
     def draw(self, surface):
         surface.fill(DARK_GRAY)
 
-        # Title
+       
         draw_text_centered(surface, "SNAKE", 60, FONT_XLARGE, GREEN)
         draw_text_centered(surface, "GAME", 120, FONT_XLARGE, TEAL)
 
-        # Decorative line
+       
         pygame.draw.line(surface, TEAL, (SCREEN_WIDTH // 2 - 120, 190), (SCREEN_WIDTH // 2 + 120, 190), 2)
 
-        # Username input
+        
         draw_text_centered(surface, "Enter Username", 210, FONT_SMALL, LIGHT_GRAY)
         input_rect = pygame.Rect(SCREEN_WIDTH // 2 - 120, 235, 240, 36)
         pygame.draw.rect(surface, GRAY, input_rect, border_radius=6)
@@ -128,7 +126,7 @@ class MainMenu:
         txt = font.render(display_name, True, WHITE)
         surface.blit(txt, (input_rect.x + 10, input_rect.y + 6))
 
-        # Personal best
+      
         if self.personal_best is not None:
             draw_text_centered(surface, f"Personal Best: {self.personal_best}", 540, FONT_SMALL, GOLD)
 
@@ -179,7 +177,7 @@ class GameOverScreen:
 
         draw_text_centered(surface, "GAME OVER", 80, FONT_XLARGE, RED)
 
-        # Stats box
+       
         box = pygame.Rect(SCREEN_WIDTH // 2 - 160, 170, 320, 180)
         pygame.draw.rect(surface, GRAY, box, border_radius=10)
         pygame.draw.rect(surface, LIGHT_GRAY, box, 2, border_radius=10)
@@ -221,7 +219,7 @@ class LeaderboardScreen:
 
         draw_text_centered(surface, "LEADERBOARD", 30, FONT_LARGE, GOLD)
 
-        # Table header
+
         y = 80
         header_font = pygame.font.SysFont(None, FONT_SMALL)
         cols = [("#", 60), ("Username", 160), ("Score", 380), ("Level", 500), ("Date", 600)]
@@ -231,7 +229,7 @@ class LeaderboardScreen:
 
         pygame.draw.line(surface, LIGHT_GRAY, (40, y + 25), (SCREEN_WIDTH - 40, y + 25), 1)
 
-        # Rows
+      
         row_font = pygame.font.SysFont(None, FONT_SMALL)
         for i, entry in enumerate(self.entries[:10]):
             ry = y + 35 + i * 36
@@ -291,17 +289,16 @@ class SettingsScreen:
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             pos = pygame.mouse.get_pos()
 
-            # Grid toggle
+           
             grid_rect = pygame.Rect(300, 180, 60, 30)
             if grid_rect.collidepoint(pos):
                 self.settings["grid_overlay"] = not self.settings["grid_overlay"]
 
-            # Sound toggle
+      
             sound_rect = pygame.Rect(300, 240, 60, 30)
             if sound_rect.collidepoint(pos):
                 self.settings["sound"] = not self.settings["sound"]
 
-            # Color selection
             for i, (color, name) in enumerate(self.color_options):
                 cx = 160 + i * 80
                 cy = 340
@@ -309,7 +306,6 @@ class SettingsScreen:
                     self.selected_color_idx = i
                     self.settings["snake_color"] = list(color)
 
-            # Save & Back
             if self.back_btn.clicked(pos):
                 save_settings(self.settings)
                 return "back"
@@ -324,7 +320,6 @@ class SettingsScreen:
 
         draw_text_centered(surface, "SETTINGS", 40, FONT_LARGE, TEAL)
 
-        # Grid overlay
         draw_text(surface, "Grid Overlay:", 160, 185, FONT_MEDIUM, WHITE)
         grid_val = self.settings.get("grid_overlay", True)
         toggle_rect = pygame.Rect(300, 180, 60, 30)
@@ -333,7 +328,6 @@ class SettingsScreen:
         pygame.draw.circle(surface, WHITE, (knob_x + 15, 195), 12)
         draw_text(surface, "ON" if grid_val else "OFF", 375, 185, FONT_SMALL, GREEN if grid_val else RED)
 
-        # Sound
         draw_text(surface, "Sound:", 160, 245, FONT_MEDIUM, WHITE)
         sound_val = self.settings.get("sound", True)
         sound_rect = pygame.Rect(300, 240, 60, 30)
@@ -364,7 +358,6 @@ class SettingsScreen:
         self.back_btn.draw(surface)
 
 
-# ── Main Loop ───────────────────────────────────────────────────────────
 
 def main():
     pygame.init()
@@ -443,7 +436,6 @@ def main():
         if not running:
             break
 
-        # Update
         if state == "menu":
             menu.update()
         elif state == "playing":
@@ -462,7 +454,6 @@ def main():
         elif state == "settings":
             settings_screen.update()
 
-        # Draw
         if state == "menu":
             menu.draw(screen)
         elif state == "playing":

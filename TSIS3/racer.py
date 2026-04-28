@@ -1,11 +1,8 @@
-"""racer.py — Core gameplay for TSIS 3 Racer"""
-
 import pygame
 import random
 import math
 from persistence import DIFFICULTY_PARAMS
 
-# ─── Dimensions ──────────────────────────────────────────────────────────────
 WIDTH         = 500
 HEIGHT        = 650
 ROAD_LEFT     = 60
@@ -13,8 +10,6 @@ ROAD_RIGHT    = 440
 ROAD_W        = ROAD_RIGHT - ROAD_LEFT
 NUM_LANES     = 4
 LANE_W        = ROAD_W // NUM_LANES
-
-# ─── Colours ─────────────────────────────────────────────────────────────────
 C_BG          = (15,  15,  22)
 C_ROAD        = (40,  40,  50)
 C_LANE_LINE   = (80,  80,  90)
@@ -41,10 +36,6 @@ C_RED         = (220,  60,  60)
 def lane_center(lane):
     return ROAD_LEFT + lane * LANE_W + LANE_W // 2
 
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Road Scroller
-# ═══════════════════════════════════════════════════════════════════════════════
 class Road:
     DASH_H     = 30
     DASH_GAP   = 20
@@ -81,9 +72,6 @@ class Road:
                 y += self.DASH_CYCLE
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# Player Car
-# ═══════════════════════════════════════════════════════════════════════════════
 class PlayerCar:
     W, H     = 36, 60
     SPEED    = 5
@@ -135,9 +123,6 @@ class PlayerCar:
             screen.blit(s, (r.x - 6, r.y - 6))
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# Traffic Car
-# ═══════════════════════════════════════════════════════════════════════════════
 class TrafficCar:
     W, H = 34, 56
 
@@ -165,9 +150,6 @@ class TrafficCar:
             pygame.draw.rect(screen, (20, 20, 20), (wx, wy, 8, 14), border_radius=2)
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# Obstacles  (oil spill, pothole, speed-bump, barrier)
-# ═══════════════════════════════════════════════════════════════════════════════
 OBS_TYPES = ["oil", "pothole", "barrier", "speedbump"]
 
 class Obstacle:
@@ -212,10 +194,6 @@ class Obstacle:
                 self.kind.upper(), True, (255, 255, 255))
             screen.blit(lbl, lbl.get_rect(center=r.center))
 
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Boost Strip  (nitro strip on road)
-# ═══════════════════════════════════════════════════════════════════════════════
 class BoostStrip:
     W, H = ROAD_W, 20
 
@@ -241,9 +219,6 @@ class BoostStrip:
         screen.blit(lbl, lbl.get_rect(center=r.center))
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# Coins  (weighted values)
-# ═══════════════════════════════════════════════════════════════════════════════
 COIN_WEIGHTS = [(1, 10), (3, 5), (5, 2), (10, 1)]   # (value, weight)
 
 def _pick_coin_value():
@@ -279,10 +254,6 @@ class Coin:
             str(self.value), True, (20, 20, 20))
         screen.blit(lbl, lbl.get_rect(center=(self.x, int(self.y))))
 
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Power-ups
-# ═══════════════════════════════════════════════════════════════════════════════
 POWERUP_TTL   = 300   # frames before auto-disappear
 POWERUP_TYPES = {
     "nitro":  {"color": C_NITRO,  "label": "⚡", "duration": 240},  # 4s
@@ -325,9 +296,6 @@ class PowerUp:
         screen.blit(lbl, lbl.get_rect(center=r.center))
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# HUD
-# ═══════════════════════════════════════════════════════════════════════════════
 class HUD:
     def __init__(self):
         self.font_sm  = pygame.font.SysFont("Consolas", 16, bold=True)
@@ -355,7 +323,6 @@ class HUD:
         sp = self.font_sm.render(f"Spd: {speed:.0f}", True, C_GREEN)
         screen.blit(sp, (WIDTH // 2 - 50, 28))
 
-        # Active power-up
         if active_pu:
             meta = POWERUP_TYPES[active_pu]
             col  = meta["color"]
@@ -373,15 +340,13 @@ class HUD:
         screen.blit(d_lbl, (WIDTH - d_lbl.get_width() - 8, 32))
 
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# Main Game Session
-# ═══════════════════════════════════════════════════════════════════════════════
+
 class GameSession:
     ROAD_SPEED_BASE   = 5
     ROAD_SPEED_MAX    = 14
-    SPEED_SCALE       = 0.002    # +speed per coin
-    TRAFFIC_BASE      = 3        # initial traffic cars
-    OBSTACLE_INTERVAL = 120      # frames between obstacles
+    SPEED_SCALE       = 0.002    
+    TRAFFIC_BASE      = 3        
+    OBSTACLE_INTERVAL = 120      
     TRAFFIC_INTERVAL  = 180
     POWERUP_INTERVAL  = 300
     BOOST_INTERVAL    = 600
@@ -410,10 +375,9 @@ class GameSession:
         self.game_over    = False
 
         # Power-up state
-        self.active_pu    = None   # "nitro" / "shield" / "repair"
+        self.active_pu    = None   
         self.pu_timer     = 0
 
-        # Timers
         self.obs_timer    = self.OBSTACLE_INTERVAL
         self.traf_timer   = self.TRAFFIC_INTERVAL
         self.pu_spawn_t   = self.POWERUP_INTERVAL
@@ -421,15 +385,12 @@ class GameSession:
 
         self.hud = HUD()
 
-        # Seed initial traffic
         for _ in range(self.TRAFFIC_BASE):
             self.traffic.append(TrafficCar(self.road_speed * 0.6))
 
-        # Seed initial coins
         for _ in range(4):
             self.coins.append(Coin(self.road_speed))
 
-    # ── Spawn helpers ─────────────────────────────────────────────────────────
 
     def _safe_spawn(self):
         """True if nothing is near the top of the screen (safe to spawn)."""
@@ -454,7 +415,6 @@ class GameSession:
             self.obstacles.append(Obstacle(self.road_speed))
 
     def _spawn_powerup(self):
-        # Only one power-up at a time
         if not self.powerups:
             kind = random.choice(list(POWERUP_TYPES.keys()))
             self.powerups.append(PowerUp(kind, self.road_speed))
@@ -463,7 +423,6 @@ class GameSession:
         if not self.boosts:
             self.boosts.append(BoostStrip())
 
-    # ── Collision helpers ─────────────────────────────────────────────────────
 
     def _hit_traffic(self, t_rect):
         if self.player.invincible > 0:
@@ -479,13 +438,11 @@ class GameSession:
         if self.player.invincible > 0:
             return False
         if obs.kind == "oil":
-            # Slow-down zone — no crash, just slow
             self.road_speed = max(2, self.road_speed - 1.5)
             return False
         if obs.kind == "speedbump":
             self.road_speed = max(2, self.road_speed - 0.5)
             return False
-        # barrier / pothole → crash unless shielded
         if self.active_pu == "shield":
             self.active_pu = None
             self.player.shield = False
@@ -493,7 +450,6 @@ class GameSession:
             return False
         return True
 
-    # ── Update ────────────────────────────────────────────────────────────────
 
     def update(self, keys):
         if self.game_over:
@@ -568,7 +524,6 @@ class GameSession:
             if t.y > HEIGHT + 20:
                 self.traffic.remove(t)
 
-        # Obstacle update & collision
         for obs in self.obstacles[:]:
             obs.update(eff_speed)
             if obs.rect.colliderect(pr):
@@ -597,7 +552,6 @@ class GameSession:
         for bs in self.boosts[:]:
             bs.update(eff_speed)
             if bs.rect.colliderect(pr):
-                # Trigger nitro for a short burst
                 self.active_pu  = "nitro"
                 self.pu_timer   = 120
                 self.boosts.remove(bs)
@@ -621,11 +575,9 @@ class GameSession:
             self.player.shield  = True
             self.pu_timer = 0
         elif kind == "repair":
-            # Clears all current obstacles on screen
             self.obstacles.clear()
             self.active_pu = None   # instant
 
-    # ── Draw ──────────────────────────────────────────────────────────────────
 
     def draw(self, screen):
         screen.fill(C_BG)

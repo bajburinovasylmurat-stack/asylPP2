@@ -1,16 +1,7 @@
-"""
-TSIS 2 — Paint Application
-tools.py  —  All drawing tool logic (shapes, fill, text helpers)
-"""
-
 import math
 import pygame
 from collections import deque
 
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Primitive helpers
-# ──────────────────────────────────────────────────────────────────────────────
 
 def draw_thick_line(surface, start, end, width, color):
     """Draw an anti-aliased thick line as a chain of circles."""
@@ -24,26 +15,15 @@ def draw_thick_line(surface, start, end, width, color):
         pygame.draw.circle(surface, color, (x, y), width)
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Pencil / Freehand
-# ──────────────────────────────────────────────────────────────────────────────
-
 def draw_pencil_stroke(surface, p1, p2, color, width):
     """Called on every MOUSEMOTION while left button held."""
     draw_thick_line(surface, p1, p2, width, color)
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Straight Line
-# ──────────────────────────────────────────────────────────────────────────────
 
 def draw_line(surface, start, end, color, width):
     draw_thick_line(surface, start, end, width, color)
 
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Rectangle
-# ──────────────────────────────────────────────────────────────────────────────
 
 def draw_rectangle(surface, start, end, color, width):
     x1, y1 = start
@@ -53,9 +33,6 @@ def draw_rectangle(surface, start, end, color, width):
         draw_thick_line(surface, pts[i], pts[(i + 1) % 4], width, color)
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Square  (force equal sides)
-# ──────────────────────────────────────────────────────────────────────────────
 
 def draw_square(surface, start, end, color, width):
     x1, y1 = start
@@ -67,9 +44,6 @@ def draw_square(surface, start, end, color, width):
     draw_rectangle(surface, start, (x1 + sx, y1 + sy), color, width)
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Circle
-# ──────────────────────────────────────────────────────────────────────────────
 
 def draw_circle(surface, start, end, color, width):
     cx, cy = start
@@ -78,9 +52,6 @@ def draw_circle(surface, start, end, color, width):
         pygame.draw.circle(surface, color, (cx, cy), radius, width)
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Right Triangle
-# ──────────────────────────────────────────────────────────────────────────────
 
 def draw_right_triangle(surface, start, end, color, width):
     x1, y1 = start
@@ -90,9 +61,6 @@ def draw_right_triangle(surface, start, end, color, width):
         draw_thick_line(surface, pts[i], pts[(i + 1) % 3], width, color)
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Equilateral Triangle
-# ──────────────────────────────────────────────────────────────────────────────
 
 def draw_equilateral_triangle(surface, start, end, color, width):
     x1, y1 = start
@@ -105,10 +73,6 @@ def draw_equilateral_triangle(surface, start, end, color, width):
         draw_thick_line(surface, pts[i], pts[(i + 1) % 3], width, color)
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Rhombus
-# ──────────────────────────────────────────────────────────────────────────────
-
 def draw_rhombus(surface, start, end, color, width):
     x1, y1 = start
     x2, y2 = end
@@ -118,19 +82,12 @@ def draw_rhombus(surface, start, end, color, width):
         draw_thick_line(surface, pts[i], pts[(i + 1) % 4], width, color)
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Eraser
-# ──────────────────────────────────────────────────────────────────────────────
-
 def draw_eraser(surface, pos, bg_color, size):
     half = size * 4
     pygame.draw.rect(surface, bg_color,
                      (pos[0] - half, pos[1] - half, half * 2, half * 2))
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Flood Fill  (BFS, exact color match)
-# ──────────────────────────────────────────────────────────────────────────────
 
 def flood_fill(surface, pos, fill_color):
     """
@@ -143,13 +100,12 @@ def flood_fill(surface, pos, fill_color):
     if not (0 <= x < w and 0 <= y < h):
         return
 
-    target_color = surface.get_at((x, y))[:3]   # ignore alpha
+    target_color = surface.get_at((x, y))[:3]   
     fill_rgb = fill_color[:3]
 
     if target_color == fill_rgb:
-        return  # already that color
+        return 
 
-    # Lock surface for pixel access
     surface.lock()
 
     visited = set()
@@ -172,9 +128,6 @@ def flood_fill(surface, pos, fill_color):
     surface.unlock()
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-# Dispatch helper
-# ──────────────────────────────────────────────────────────────────────────────
 
 SHAPE_TOOLS = {
     'rectangle':           draw_rectangle,

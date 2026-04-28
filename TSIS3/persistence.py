@@ -9,7 +9,7 @@ SETTINGS_FILE    = "settings.json"
 DEFAULT_SETTINGS = {
     "sound":       False,
     "car_color":   [0, 200, 255],
-    "difficulty":  "normal",   # easy / normal / hard
+    "difficulty":  "normal",  
     "username":    "",
 }
 
@@ -20,14 +20,12 @@ DIFFICULTY_PARAMS = {
 }
 
 
-# ─── Settings ────────────────────────────────────────────────────────────────
 
 def load_settings() -> dict:
     if os.path.exists(SETTINGS_FILE):
         try:
             with open(SETTINGS_FILE, "r") as f:
                 data = json.load(f)
-            # Merge with defaults so new keys are always present
             merged = DEFAULT_SETTINGS.copy()
             merged.update(data)
             return merged
@@ -44,7 +42,6 @@ def save_settings(settings: dict) -> None:
         print("Could not save settings:", e)
 
 
-# ─── Leaderboard ─────────────────────────────────────────────────────────────
 
 def load_leaderboard() -> list:
     if os.path.exists(LEADERBOARD_FILE):

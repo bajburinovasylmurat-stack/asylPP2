@@ -1,5 +1,3 @@
-"""main.py — Entry point & screen manager for TSIS 3 Racer"""
-
 import pygame
 from persistence import load_settings, save_settings, add_score
 from ui import (
@@ -19,7 +17,6 @@ def main():
 
     settings = load_settings()
 
-    # ── If no username stored → show username screen first ───────────────────
     if not settings.get("username", "").strip():
         state = "username"
     else:
@@ -40,7 +37,7 @@ def main():
         elif s == "game":
             current_screen = GameSession(settings)
         elif s == "gameover":
-            pass   # built inline with results
+            pass  
 
     build(state)
 
@@ -53,7 +50,6 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
 
-        # ── Username ──────────────────────────────────────────────────────────
         if state == "username":
             for event in events:
                 result = current_screen.handle(event)
@@ -64,7 +60,6 @@ def main():
                     build(state)
             current_screen.draw(screen)
 
-        # ── Main Menu ─────────────────────────────────────────────────────────
         elif state == "menu":
             for event in events:
                 result = current_screen.handle(event)
@@ -81,7 +76,6 @@ def main():
                     running = False
             current_screen.draw(screen)
 
-        # ── Settings ─────────────────────────────────────────────────────────
         elif state == "settings":
             for event in events:
                 result = current_screen.handle(event)
@@ -92,7 +86,6 @@ def main():
                     build(state)
             current_screen.draw(screen)
 
-        # ── Leaderboard ───────────────────────────────────────────────────────
         elif state == "leaderboard":
             for event in events:
                 result = current_screen.handle(event)
@@ -101,7 +94,6 @@ def main():
                     build(state)
             current_screen.draw(screen)
 
-        # ── Gameplay ──────────────────────────────────────────────────────────
         elif state == "game":
             keys = pygame.key.get_pressed()
             current_screen.update(keys)
@@ -122,7 +114,7 @@ def main():
                     settings.get("username", "Player"),
                 )
 
-        # ── Game Over ─────────────────────────────────────────────────────────
+
         elif state == "gameover":
             for event in events:
                 result = current_screen.handle(event)
