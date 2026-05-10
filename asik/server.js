@@ -127,6 +127,7 @@ function ensureSeedData() {
   }
 }
 
+
 ensureSeedData();
 
 function allConcerts(includeHidden) {

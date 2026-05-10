@@ -273,11 +273,7 @@ let selectedSeats = [];
 let uploadedPosters = { new:'', edit:'' };
 let adminSeatConcertId = null;
 
-const DEFAULT_CONCERTS = [
-  {id:1,name:'Dimash Qudaibergen - Live',artist:'Dimash Qudaibergen',date:'2026-08-15',time:'20:00',poster:'',desc:'Әлемге танымал қазақстандық әнші Димаш Құдайбергеннің Алматыдағы концерт кеші.',tag:'Хит',layout:'large',price:8000,vipPrice:25000,kaspiNum:'+7 707 000 00 01',kaspiLink:'',waNum:'77070000001',visible:true,seats:[]},
-  {id:2,name:'Jazz Night - Phantom Sessions',artist:'Phantom Lounge All-Stars',date:'2026-07-20',time:'21:00',poster:'',desc:'Phantom Lounge атмосферасындағы тірі джаз кеші.',tag:'Жаңа',layout:'medium',price:5000,vipPrice:12000,kaspiNum:'+7 707 000 00 01',kaspiLink:'',waNum:'77070000001',visible:true,seats:[]},
-  {id:3,name:'Deep House Party',artist:'DJ Resident + Guest',date:'2026-07-06',time:'23:00',poster:'',desc:'Deep house және tech house кеші.',tag:'',layout:'small',price:3500,vipPrice:8000,kaspiNum:'+7 707 000 00 01',kaspiLink:'',waNum:'77070000001',visible:true,seats:[]}
-];
+
 
 function escapeHtml(value){
   return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
