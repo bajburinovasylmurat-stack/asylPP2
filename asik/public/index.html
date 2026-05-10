@@ -62,7 +62,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(8,8,8,.95);b
 <div id="page-concerts" class="page active">
   <div class="hero">
     <div class="hero-line"></div>
-    <div class="hero-eyebrow">Алматы · Қаныш Сәтбаев көш, 90/1</div>
+    <div class="hero-eyebrow">Алматы · Қаныш Сәтпаев кш, 90/1</div>
     <h1 class="hero-title">Phantom <span>Lounge</span></h1>
     <p class="hero-sub">Live Music · Events · Концерттер</p>
   </div>
@@ -71,7 +71,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(8,8,8,.95);b
     <div class="section-header"><h2>Алдағы Концерттер</h2></div>
     <div class="concerts-grid" id="concerts-grid"></div>
   </div>
-  <footer><div class="logo">Phantom</div><p>Алматы · Қаныш Сәтбаев көш, 90/1 <br>Live Music · Lounge</p></footer>
+  <footer><div class="logo">Phantom</div><p>Алматы · Қаныш Сәтпаев кш, 90/1 <br>Live Music · Lounge</p></footer>
 </div>
 
 <div id="page-concert" class="page">
@@ -266,7 +266,7 @@ const TABLE_LAYOUT = TABLE_LAYOUT_72;
 const STORE_KEY = 'phantom_concerts_cafee';
 let concertsData = [];
 let adminToken = sessionStorage.getItem('phantomAdminToken') || '';
-let loggedIn = true; // Auth disabled — always logged in
+let loggedIn = !!(adminToken);
 let currentFilter = 'Барлығы';
 let currentConcertId = null;
 let selectedSeats = [];
@@ -746,12 +746,38 @@ function copyText(text){
 }
 
 async function tryLogin(){
-  // Auth disabled — auto login
-  await loadData(true);
+  const pw = document.getElementById('pw-input').value.trim();
+  if(!pw){showNotif('Шифрды енгізіңіз');return;}
+  try{
+    const data = await apiRequest('/api/admin/login',{method:'POST',body:JSON.stringify({password:pw})});
+    adminToken = data.token;
+    sessionStorage.setItem('phantomAdminToken', adminToken);
+    loggedIn = true;
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('admin-content').style.display='block';
+    await loadData(true);
+    renderAdminStats(); renderAdminTable();
+  }catch(e){
+    showNotif(e.message || 'Қате пароль');
+  }
+}
+function doLogout(){
+  adminToken = '';
+  loggedIn = false;
+  sessionStorage.removeItem('phantomAdminToken');
+  document.getElementById('login-screen').style.display='block';
+  document.getElementById('admin-content').style.display='none';
+}
+async function renderAdmin(){
+  if(!loggedIn){
+    document.getElementById('login-screen').style.display='block';
+    document.getElementById('admin-content').style.display='none';
+    return;
+  }
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('admin-content').style.display='block';
   renderAdminStats(); renderAdminTable();
 }
-function doLogout(){ /* Auth disabled */ }
-async function renderAdmin(){ document.getElementById('admin-content').style.display='block'; renderAdminStats(); renderAdminTable(); }
 function renderAdminStats(){
   const total = concertsData.length;
   const visible = concertsData.filter(c => c.visible).length;
