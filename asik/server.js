@@ -174,7 +174,13 @@ function sendError(res, status, message) {
 }
 
 function requireAuth(req, res) {
-  return true; // Auth disabled — no password required
+  const auth = req.headers['authorization'] || '';
+  const token = auth.replace('Bearer ', '').trim();
+  if (!token || !sessions.has(token)) {
+    sendError(res, 401, 'Unauthorized');
+    return false;
+  }
+  return true;
 }
 
 function safePath(urlPath) {
@@ -236,6 +242,11 @@ async function handleApi(req, res, pathname) {
       return;
     }
     if (req.method === 'POST' && pathname === '/api/admin/login') {
+      const body = await readBody(req);
+      if (String(body.password || '') !== ADMIN_PASSWORD) {
+        sendError(res, 401, 'Қате пароль');
+        return;
+      }
       const token = crypto.randomBytes(24).toString('hex');
       sessions.set(token, Date.now());
       send(res, 200, { token });
