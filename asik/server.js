@@ -247,8 +247,6 @@ async function handleApi(req, res, pathname) {
         sendError(res, 401, 'Қате пароль');
         return;
       }
-      const b = await readBody(req);
-      if (String(b.password || '') !== ADMIN_PASSWORD) { sendError(res, 401, 'Қате пароль'); return; }
       const token = crypto.randomBytes(24).toString('hex');
       sessions.set(token, Date.now());
       send(res, 200, { token });
