@@ -19,11 +19,11 @@ const sessions = new Map();
 const TABLE_LAYOUT_72 = [
   {id:1,x:145,y:772,w:38,h:28},{id:2,x:181,y:772,w:38,h:28},{id:3,x:145,y:745,w:38,h:28},{id:4,x:181,y:745,w:38,h:28},
   {id:5,x:270,y:726,w:38,h:28},{id:6,x:270,y:700,w:38,h:28},{id:7,x:145,y:707,w:38,h:28},{id:8,x:181,y:707,w:38,h:28},
-  {id:9,x:145,y:680,w:38,h:28},{id:10,x:181,y:680,w:38,h:28},{id:11,x:233,y:726,w:38,h:28},{id:12,x:233,y:700,w:38,h:28},
+  {id:9,x:145,y:680,w:38,h:28},{id:10,x:181,y:680,w:38,h:28},{id:11,x:308,y:726,w:38,h:28},{id:12,x:308,y:700,w:38,h:28},
   {id:13,x:350,y:610,w:38,h:28},{id:14,x:350,y:637,w:38,h:28},{id:15,x:386,y:610,w:38,h:28},{id:16,x:386,y:637,w:38,h:28},
   {id:17,x:460,y:610,w:38,h:28},{id:18,x:460,y:637,w:38,h:28},{id:19,x:496,y:610,w:38,h:28},{id:20,x:496,y:637,w:38,h:28},
   {id:21,x:574,y:610,w:38,h:28},{id:22,x:574,y:637,w:38,h:28},{id:23,x:610,y:610,w:38,h:28},{id:24,x:610,y:637,w:38,h:28},
-  {id:25,x:181,y:637,w:38,h:28},{id:26,x:181,y:610,w:38,h:28},{id:27,x:240,y:520,w:38,h:28},{id:28,x:240,y:548,w:38,h:28},
+  {id:25,x:233,y:726,w:38,h:28},{id:26,x:233,y:700,w:38,h:28},{id:27,x:240,y:520,w:38,h:28},{id:28,x:240,y:548,w:38,h:28},
   {id:29,x:277,y:520,w:38,h:28},{id:30,x:277,y:548,w:38,h:28},{id:31,x:350,y:520,w:38,h:28},{id:32,x:350,y:548,w:38,h:28},
   {id:33,x:386,y:520,w:38,h:28},{id:34,x:386,y:548,w:38,h:28},{id:35,x:460,y:520,w:38,h:28},{id:36,x:460,y:548,w:38,h:28},
   {id:37,x:496,y:520,w:38,h:28},{id:38,x:496,y:548,w:38,h:28},{id:39,x:574,y:520,w:38,h:28},{id:40,x:574,y:548,w:38,h:28},
@@ -122,8 +122,10 @@ function ensureSeedData() {
     VALUES (@name, @artist, @date, @time, @poster, @desc, @tag, @layout, @price, @priceRules, @kaspiNum, @kaspiLink, @waNum, @visible)
   `);
   for (const concert of DEFAULT_CONCERTS) {
-    const result = insert.run(concert);
-    createSeats(Number(result.lastInsertRowid), concert.layout, concert.price, concert.priceRules);
+    const { name, artist, date, time, poster, desc, tag, layout, price, priceRules, kaspiNum, kaspiLink, waNum, visible } = concert;
+    const safeLayout = layout === 'large84' ? 'large84' : 'medium';
+    const result = insert.run({ name, artist, date, time, poster: poster || '', desc: desc || '', tag: tag || '', layout: safeLayout, price: Number(price || 0), priceRules: priceRules || '', kaspiNum: kaspiNum || '', kaspiLink: kaspiLink || '', waNum: waNum || '', visible: visible ? 1 : 0 });
+    createSeats(Number(result.lastInsertRowid), safeLayout, price, priceRules);
   }
 }
 const DEFAULT_CONCERTS = [
