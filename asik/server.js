@@ -19,11 +19,11 @@ const sessions = new Map();
 const TABLE_LAYOUT_72 = [
   {id:1,x:145,y:772,w:38,h:28},{id:2,x:181,y:772,w:38,h:28},{id:3,x:145,y:745,w:38,h:28},{id:4,x:181,y:745,w:38,h:28},
   {id:5,x:270,y:726,w:38,h:28},{id:6,x:270,y:700,w:38,h:28},{id:7,x:145,y:707,w:38,h:28},{id:8,x:181,y:707,w:38,h:28},
-  {id:9,x:145,y:680,w:38,h:28},{id:10,x:181,y:680,w:38,h:28},{id:11,x:190,y:637,w:38,h:28},{id:12,x:190,y:610,w:38,h:28},
+  {id:9,x:145,y:680,w:38,h:28},{id:10,x:181,y:680,w:38,h:28},{id:11,x:233,y:726,w:38,h:28},{id:12,x:233,y:700,w:38,h:28},
   {id:13,x:350,y:610,w:38,h:28},{id:14,x:350,y:637,w:38,h:28},{id:15,x:386,y:610,w:38,h:28},{id:16,x:386,y:637,w:38,h:28},
   {id:17,x:460,y:610,w:38,h:28},{id:18,x:460,y:637,w:38,h:28},{id:19,x:496,y:610,w:38,h:28},{id:20,x:496,y:637,w:38,h:28},
   {id:21,x:574,y:610,w:38,h:28},{id:22,x:574,y:637,w:38,h:28},{id:23,x:610,y:610,w:38,h:28},{id:24,x:610,y:637,w:38,h:28},
-  {id:25,x:160,y:550,w:38,h:28},{id:26,x:160,y:522,w:38,h:28},{id:27,x:240,y:520,w:38,h:28},{id:28,x:240,y:548,w:38,h:28},
+  {id:25,x:181,y:637,w:38,h:28},{id:26,x:181,y:610,w:38,h:28},{id:27,x:240,y:520,w:38,h:28},{id:28,x:240,y:548,w:38,h:28},
   {id:29,x:277,y:520,w:38,h:28},{id:30,x:277,y:548,w:38,h:28},{id:31,x:350,y:520,w:38,h:28},{id:32,x:350,y:548,w:38,h:28},
   {id:33,x:386,y:520,w:38,h:28},{id:34,x:386,y:548,w:38,h:28},{id:35,x:460,y:520,w:38,h:28},{id:36,x:460,y:548,w:38,h:28},
   {id:37,x:496,y:520,w:38,h:28},{id:38,x:496,y:548,w:38,h:28},{id:39,x:574,y:520,w:38,h:28},{id:40,x:574,y:548,w:38,h:28},
@@ -43,11 +43,7 @@ const TABLE_LAYOUT_84 = [
   {id:81,x:574,y:200,w:38,h:28},{id:82,x:574,y:231,w:38,h:28},{id:83,x:610,y:200,w:38,h:28},{id:84,x:610,y:231,w:38,h:28}
 ];
 
-const DEFAULT_CONCERTS = [
-  {name:'Dimash Qudaibergen - Live',artist:'Dimash Qudaibergen',date:'2026-08-15',time:'20:00',poster:'',desc:'Әлемге танымал қазақстандық әнші Димаш Құдайбергеннің Алматыдағы концерт кеші.',tag:'Хит',layout:'large84',price:8000,priceRules:'1-20: 25000',kaspiNum:'+7 707 000 00 01',kaspiLink:'',waNum:'77070000001',visible:1},
-  {name:'Jazz Night - Phantom Sessions',artist:'Phantom Lounge All-Stars',date:'2026-07-20',time:'21:00',poster:'',desc:'Phantom Lounge атмосферасындағы тірі джаз кеші.',tag:'Жаңа',layout:'medium',price:5000,priceRules:'1-12: 12000',kaspiNum:'+7 707 000 00 01',kaspiLink:'',waNum:'77070000001',visible:1},
-  {name:'Deep House Party',artist:'DJ Resident + Guest',date:'2026-07-06',time:'23:00',poster:'',desc:'Deep house және tech house кеші.',tag:'',layout:'medium',price:3500,priceRules:'1-10: 8000',kaspiNum:'+7 707 000 00 01',kaspiLink:'',waNum:'77070000001',visible:1}
-];
+
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS concerts (
