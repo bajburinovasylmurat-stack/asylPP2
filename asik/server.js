@@ -1,8 +1,8 @@
-const http = require('node:http');
-const fs = require('node:fs');
-const path = require('node:path');
-const crypto = require('node:crypto');
-const { DatabaseSync } = require('node:sqlite');
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
+const Database = require('better-sqlite3');
 
 const PORT = Number(process.env.PORT || 3000);
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'phantom2026';
@@ -13,7 +13,10 @@ const DB_PATH = path.join(DATA_DIR, 'app.db');
 
 fs.mkdirSync(DATA_DIR, { recursive: true });
 
-const db = new DatabaseSync(DB_PATH);
+const db = new Database(DB_PATH);
+db.pragma('journal_mode = WAL');
+db.pragma('foreign_keys = ON');
+
 const sessions = new Map();
 
 const TABLE_LAYOUT_72 = [
@@ -42,8 +45,6 @@ const TABLE_LAYOUT_84 = [
   {id:77,x:460,y:200,w:38,h:28},{id:78,x:460,y:231,w:38,h:28},{id:79,x:496,y:200,w:38,h:28},{id:80,x:496,y:231,w:38,h:28},
   {id:81,x:574,y:200,w:38,h:28},{id:82,x:574,y:231,w:38,h:28},{id:83,x:610,y:200,w:38,h:28},{id:84,x:610,y:231,w:38,h:28}
 ];
-
-
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS concerts (
@@ -114,6 +115,12 @@ function createSeats(concertId, layout, price, priceRules) {
   }
 }
 
+const DEFAULT_CONCERTS = [
+  {name:'Dimash Qudaibergen - Live',artist:'Dimash Qudaibergen',date:'2026-08-15',time:'20:00',poster:'',desc:'Әлемге танымал қазақстандық әнші Димаш Құдайбергеннің Алматыдағы концерт кеші.',tag:'Хит',layout:'large84',price:8000,priceRules:'',kaspiNum:'+7 707 000 00 01',kaspiLink:'',waNum:'77070000001',visible:1},
+  {name:'Jazz Night - Phantom Sessions',artist:'Phantom Lounge All-Stars',date:'2026-07-20',time:'21:00',poster:'',desc:'Phantom Lounge атмосферасындағы тірі джаз кеші.',tag:'Жаңа',layout:'medium',price:5000,priceRules:'',kaspiNum:'+7 707 000 00 01',kaspiLink:'',waNum:'77070000001',visible:1},
+  {name:'Deep House Party',artist:'DJ Resident + Guest',date:'2026-07-06',time:'23:00',poster:'',desc:'Deep house және tech house кеші.',tag:'',layout:'medium',price:3500,priceRules:'',kaspiNum:'+7 707 000 00 01',kaspiLink:'',waNum:'77070000001',visible:1}
+];
+
 function ensureSeedData() {
   const count = db.prepare('SELECT COUNT(*) AS count FROM concerts').get().count;
   if (count) return;
@@ -122,18 +129,10 @@ function ensureSeedData() {
     VALUES (@name, @artist, @date, @time, @poster, @desc, @tag, @layout, @price, @priceRules, @kaspiNum, @kaspiLink, @waNum, @visible)
   `);
   for (const concert of DEFAULT_CONCERTS) {
-    const { name, artist, date, time, poster, desc, tag, layout, price, priceRules, kaspiNum, kaspiLink, waNum, visible } = concert;
-    const safeLayout = layout === 'large84' ? 'large84' : 'medium';
-    const result = insert.run({ name, artist, date, time, poster: poster || '', desc: desc || '', tag: tag || '', layout: safeLayout, price: Number(price || 0), priceRules: priceRules || '', kaspiNum: kaspiNum || '', kaspiLink: kaspiLink || '', waNum: waNum || '', visible: visible ? 1 : 0 });
-    createSeats(Number(result.lastInsertRowid), safeLayout, price, priceRules);
+    const result = insert.run(concert);
+    createSeats(Number(result.lastInsertRowid), concert.layout, concert.price, concert.priceRules);
   }
 }
-const DEFAULT_CONCERTS = [
-  {id:1,name:'Dimash Qudaibergen - Live',artist:'Dimash Qudaibergen',date:'2026-08-15',time:'20:00',poster:'',desc:'Әлемге танымал қазақстандық әнші Димаш Құдайбергеннің Алматыдағы концерт кеші.',tag:'Хит',layout:'large',price:8000,vipPrice:25000,kaspiNum:'+7 707 000 00 01',kaspiLink:'',waNum:'77070000001',visible:true,seats:[]},
-  {id:2,name:'Jazz Night - Phantom Sessions',artist:'Phantom Lounge All-Stars',date:'2026-07-20',time:'21:00',poster:'',desc:'Phantom Lounge атмосферасындағы тірі джаз кеші.',tag:'Жаңа',layout:'medium',price:5000,vipPrice:12000,kaspiNum:'+7 707 000 00 01',kaspiLink:'',waNum:'77070000001',visible:true,seats:[]},
-  {id:3,name:'Deep House Party',artist:'DJ Resident + Guest',date:'2026-07-06',time:'23:00',poster:'',desc:'Deep house және tech house кеші.',tag:'',layout:'small',price:3500,vipPrice:8000,kaspiNum:'+7 707 000 00 01',kaspiLink:'',waNum:'77070000001',visible:true,seats:[]}
-];
-
 ensureSeedData();
 
 function allConcerts(includeHidden) {
@@ -168,7 +167,13 @@ function readBody(req) {
 
 function send(res, status, payload, headers = {}) {
   const data = JSON.stringify(payload);
-  res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8', 'Content-Length': Buffer.byteLength(data), ...headers });
+  res.writeHead(status, {
+    'Content-Type': 'application/json; charset=utf-8',
+    'Content-Length': Buffer.byteLength(data),
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    ...headers
+  });
   res.end(data);
 }
 
@@ -234,6 +239,17 @@ function cleanConcertPayload(body) {
 }
 
 async function handleApi(req, res, pathname) {
+  // CORS preflight
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204, {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+    });
+    res.end();
+    return;
+  }
+
   try {
     if (req.method === 'GET' && pathname === '/api/concerts') {
       send(res, 200, { concerts: allConcerts(false) });
@@ -350,7 +366,7 @@ const server = http.createServer((req, res) => {
   serveStatic(req, res, url.pathname);
 });
 
-server.listen(PORT, () => {
-  console.log(`Phantom Lounge server: http://localhost:${PORT}`);
+server.listen(PORT, '0.0.0.0', () => {
+  console.log(`Phantom Lounge server running on port ${PORT}`);
   console.log(`Admin password: ${ADMIN_PASSWORD}`);
 });
